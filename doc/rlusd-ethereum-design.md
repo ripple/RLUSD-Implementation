@@ -16,11 +16,11 @@ The deployed smart contracts enable minting, burning, global and individual free
 
 The Ripple USD token provides the following _enhancements_ beyond the standard ERC-20 features:
 
-- **Individual Freeze**: A mechanism to _pause/unpause_ activity on an individual account. A frozen account cannot call the [transfer(to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transfer-address-uint256-), [transferFrom(from, to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transferFrom-address-address-uint256-), [allowance(owner, spender)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-allowance-address-address-), and [approve(spender, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-approve-address-uint256-) functions, and is unable to receive Ripple USD stablecoin.
+- **Individual Freeze/Unfreeze**: A mechanism to _pause/unpause_ activity on an individual account. A frozen account cannot call the [transfer(to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transfer-address-uint256-), [transferFrom(from, to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transferFrom-address-address-uint256-), [allowance(owner, spender)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-allowance-address-address-), and `approve(spender, value)` functions, and is unable to receive Ripple USD stablecoin.
 
-- **Global Freeze**: A safety measure that enacts a _pause/unpause_ on all accounts. When a global freeze is enabled, the `transfer(to, value)`, `transferFrom(from, to, value)`, `increaseAllowance(spender, value)`, `decreaseAllowance(spender, value)` and `approve(spender, value)` functions will fail for all accounts.
+- **Global Freeze/Unfreeze**: A safety measure that enacts a _pause/unpause_ on all accounts. When a global freeze is enabled, the [transfer(to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transfer-address-uint256-), [transferFrom(from, to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transferFrom-address-address-uint256-), [decreaseAllowance(spender, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-) and `approve(spender, value)` functions will fail for all accounts.
 
-- **Clawback**: A forced `burn(amount)` function, which does not require a signature from the owner of the account, and is instead signed for by the account with the `Clawbacker` role.
+- **Clawback**: A forced `burn(value)` function, which does not require a signature from the owner of the account, and is instead signed for by the account with the `Clawbacker` role.
 
 ## On-Chain roles
 
@@ -59,7 +59,7 @@ The `MultiSign` contract requires the creation of a predetermined list of known 
 
 Events are emitted when the state of the stablecoin contract changes.
 
-- `SignersChanged(address, address[], uint8[], uint256)` : The event is emitted when the `setSigners` method on the contract is called. The values here are the account `address` for which the signers were changed, signer addresses, their weights, and the quorum.
+- `SignersChanged(address, address[], uint8[], uint256)` : The event is emitted when the `setSigners` method on an account's `MultiSign` contract is called. The values here are the account `address` for which the signers were changed, signer addresses, their weights, and the quorum.
 
 - `Transfer(address, address, uint256)`: Emitted when value is moved from one account to another.
 
@@ -67,9 +67,9 @@ Events are emitted when the state of the stablecoin contract changes.
 
 - `Unpaused(address)`: Emitted when `unpause()` is called, triggering a _Global Unfreeze_ with the address that called the method.
 
-- `AccountPaused(address)`: Emitted when `pauseAccount(address)` is called. The `address` represents the account that needs to be _frozen_.
+- `AccountPaused(address)`: Emitted when `pauseAccount(address)` is called. The `address` represents the account that was _frozen_.
 
-- `AccountUnpaused(address)`: Emitted when `unpauseAccount(address)` is called. The `address` represents the account that needs to be _unfrozen_.
+- `AccountUnpaused(address)`: Emitted when `unpauseAccount(address)` is called. The `address` represents the account that was _unfrozen_.
 
 ## Upgrading the ERC-20 contract
 
