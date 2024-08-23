@@ -1,14 +1,14 @@
 # Ripple USD Ethereum Design
 
-Ripple USD (RLUSD) is an [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/) compliant token. The ERC-20 design includes standard imported functions from [OpenZepplin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc20#IERC20), and specific functions written by Ripple Engineers.
+Ripple USD (RLUSD) is an [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/) compliant token. The ERC-20 design includes standard imported functions from [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc20#IERC20), and specific functions written by Ripple Engineers.
 
-The OpenZepplin library was chosen because:
+The OpenZeppelin library was chosen because:
 
-- OpenZepplin are renowned smart contract auditors and open-source contributors.
+- OpenZeppelin are renowned smart contract auditors and open-source contributors.
 
-- The OpenZepplin contracts are built with security, upgradeability, and modularity in mind.
+- The OpenZeppelin contracts are built with security, upgradeability, and modularity in mind.
 
-- OpenZepplin contracts are completely standard compliant.
+- OpenZeppelin contracts are completely standard compliant.
 
 The deployed smart contracts enable minting, burning, global and individual freezing, clawback, and future upgrades to the ERC-20 contract. Permissions are controlled by a central Role Admin account, which is managed by Ripple internally.
 
