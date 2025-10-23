@@ -1,6 +1,6 @@
 # Ripple USD Ethereum Design
 
-Ripple USD (RLUSD) is an [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/) compliant token. The ERC-20 design includes standard imported functions from [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc20#IERC20), and specific functions written by Ripple Engineers.
+Ripple USD (RLUSD) is an [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/) compliant token with [ERC-2612 Permit](https://eips.ethereum.org/EIPS/eip-2612) extension support. The ERC-20 design includes standard imported functions from [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc20#IERC20), and specific functions written by Ripple Engineers.
 
 The OpenZeppelin library was chosen because:
 
@@ -10,17 +10,19 @@ The OpenZeppelin library was chosen because:
 
 - OpenZeppelin contracts are completely standard compliant.
 
-The deployed smart contracts enable minting, burning, global and individual freezing, clawback, and future upgrades to the ERC-20 contract. Permissions are controlled by a central Role Admin account, which is managed by Ripple internally.
+The deployed smart contracts enable minting, burning, global and individual freezing, clawback, gasless approvals via permit signatures, and future upgrades to the ERC-20 contract. Permissions are controlled by a central Role Admin account, which is managed by Ripple internally.
 
 ## Ripple USD ERC-20 token
 
 The Ripple USD token provides the following _enhancements_ beyond the standard ERC-20 features:
 
-- **Individual Freeze/Unfreeze**: A mechanism to _pause/unpause_ activity on an individual account. A frozen account cannot call the [transfer(to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transfer-address-uint256-), [transferFrom(from, to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transferFrom-address-address-uint256-), [allowance(owner, spender)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-allowance-address-address-), and `approve(spender, value)` functions, and is unable to receive Ripple USD stablecoin.
+- **Individual Freeze/Unfreeze**: A mechanism to _pause/unpause_ activity on an individual account. A frozen account cannot call the [transfer(to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transfer-address-uint256-), [transferFrom(from, to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transferFrom-address-address-uint256-), [allowance(owner, spender)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-allowance-address-address-), `approve(spender, value)`, and `permit(owner, spender, value, deadline, v, r, s)` functions, and is unable to receive Ripple USD stablecoin.
 
-- **Global Freeze/Unfreeze**: A safety measure that enacts a _pause/unpause_ on all accounts. When a global freeze is enabled, the [transfer(to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transfer-address-uint256-), [transferFrom(from, to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transferFrom-address-address-uint256-), [decreaseAllowance(spender, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-) and `approve(spender, value)` functions will fail for all accounts.
+- **Global Freeze/Unfreeze**: A safety measure that enacts a _pause/unpause_ on all accounts. When a global freeze is enabled, the [transfer(to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transfer-address-uint256-), [transferFrom(from, to, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-transferFrom-address-address-uint256-), [decreaseAllowance(spender, value)](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-), `approve(spender, value)`, and `permit(owner, spender, value, deadline, v, r, s)` functions will fail for all accounts.
 
 - **Clawback**: A forced `burn(value)` function, which does not require a signature from the owner of the account, and is instead signed for by the account with the `Clawbacker` role.
+
+- **Gasless Approvals (ERC-2612 Permit)**: Allows users to approve token spending through off-chain signatures instead of on-chain transactions, enabling gasless approval workflows. The `permit(owner, spender, value, deadline, v, r, s)` function accepts a signed message to set allowances without requiring the owner to pay gas fees.
 
 ## On-Chain roles
 
