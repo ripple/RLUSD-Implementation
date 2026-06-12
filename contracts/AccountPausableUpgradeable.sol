@@ -94,6 +94,17 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
     }
 
     /**
+     * @dev Pauses an account from circulating the ERC20 token. And if the account is already paused, we don't revert.
+     */
+    function _tryPauseAccount(address account) internal virtual {
+        AccountPausableStorage storage $ = _getAccountPausableStorage();
+        if (!$._frozen[account]) {
+            $._frozen[account] = true;
+            emit AccountPaused(account);
+        }
+    }
+
+    /**
      * @dev Returns account to normal state.
      *
      * Requirements:
