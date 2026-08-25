@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.26;
+pragma solidity 0.8.29;
 
-import {ERC20Upgradeable} from "node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import {Initializable} from "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {UUPSUpgradeable} from "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import {AccessControlUpgradeable} from "node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import {ERC20PausableUpgradeable} from "node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PausableUpgradeable.sol";
+import {ERC20Upgradeable} from "@openzeppelin-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol";
+import {Initializable} from "@openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin-upgradeable/contracts/access/AccessControlUpgradeable.sol";
+import {ERC20PausableUpgradeable} from "@openzeppelin-upgradeable/contracts/token/ERC20/extensions/ERC20PausableUpgradeable.sol";
 import {AccountPausableUpgradeable} from "./AccountPausableUpgradeable.sol";
 
 /**
@@ -15,6 +15,7 @@ import {AccountPausableUpgradeable} from "./AccountPausableUpgradeable.sol";
  *
  * @custom:security-contact bugs@ripple.com
  */
+// WARNING: This contract is deprecated and should no longer be used. Use StablecoinUpgradeableV2 instead.
 contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeable, AccessControlUpgradeable,
     ERC20PausableUpgradeable, AccountPausableUpgradeable {
 
@@ -39,10 +40,18 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
      * The modifier initializer here helps us block initialization in the constructor so that we initialize value only
      * when deploying the proxy and not the contract itself. The initializer also tracks how many times this method is
      * called and it can only be called once.
+     *
+     * @param name_ The name of the token.
+     * @param symbol_ The symbol of the token.
+     * @param minter_ The address of the minter role.
+     * @param admin_ The address of the admin role.
+     * @param upgrader_ The address of the upgrader role.
+     * @param pauser_ The address of the pauser role.
+     * @param clawbacker_ The address of the clawbacker role.
      */
     function initialize(string memory name_, string memory symbol_, address minter_, address admin_, address upgrader_,
                         address pauser_, address clawbacker_)
-        public initializer
+        external virtual initializer
     {
         __ERC20_init(name_, symbol_);
         __UUPSUpgradeable_init();
@@ -159,7 +168,7 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
      * - the {to} account should not be paused/frozen
      * - the {msg.sender} account should not be paused/frozen
      */
-    function _update(address from, address to, uint256 value) internal override(ERC20Upgradeable, ERC20PausableUpgradeable)
+    function _update(address from, address to, uint256 value) internal virtual override(ERC20Upgradeable, ERC20PausableUpgradeable)
         whenAccountNotPaused(from)
         whenAccountNotPaused(to)
         whenAccountNotPaused(_msgSender())
