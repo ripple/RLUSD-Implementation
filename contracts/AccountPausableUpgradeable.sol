@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.26;
+pragma solidity 0.8.29;
 
-import {Initializable} from "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {ContextUpgradeable} from "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import {Initializable} from "@openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {ContextUpgradeable} from "@openzeppelin-upgradeable/contracts/utils/ContextUpgradeable.sol";
 
 /**
  * @dev The following contract lets us halt activities for accounts that have been paused using the
@@ -50,9 +50,7 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
      * - The account must not already be paused.
      */
     modifier whenAccountNotPaused(address account) {
-        if (accountPaused(account)) {
-            revert AccountIsPaused(account);
-        }
+        require(!accountPaused(account), AccountIsPaused(account));
         _;
     }
 
@@ -63,9 +61,7 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
      * - The account must already be paused.
      */
     modifier whenAccountPaused(address account) {
-        if (!accountPaused(account)) {
-            revert AccountIsNotPaused(account);
-        }
+        require(accountPaused(account), AccountIsNotPaused(account));
         _;
     }
 
