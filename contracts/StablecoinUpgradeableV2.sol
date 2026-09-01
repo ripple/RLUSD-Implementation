@@ -28,13 +28,20 @@ contract StablecoinUpgradeableV2 is ERC20PermitUpgradeable, StablecoinUpgradeabl
         _;
     }
 
+    modifier _onlyInitializedV1() {
+        if (_getInitializedVersion() != 1) {
+            revert Initializable.InvalidInitialization();
+        }
+        _;
+    }
+
     /**
      * @dev This method is used to re-initialize the contract with values that we want to use to bootstrap and run things.
      * The modifier reinitializer here helps us block initialization in the constructor so that we initialize value only
      * when deploying the proxy and not the contract itself. The reinitializer also tracks how many times this method is
      * called and it can only be called once.
      */
-    function reinitialize() external reinitializer(2) {
+    function reinitialize() external _onlyInitializedV1 reinitializer(2) {
         __ERC20Permit_init(name());
     }
 
