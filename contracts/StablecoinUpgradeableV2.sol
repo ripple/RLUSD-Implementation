@@ -94,7 +94,16 @@ contract StablecoinUpgradeableV2 is ERC20PermitUpgradeable, StablecoinUpgradeabl
         ERC20PausableUpgradeable._update(from, to, value);
     }
 
-    // @inheritdoc StablecoinUpgradeable
+    /**
+     * @dev Pause the listed accounts. Unlike the V1 override, already-paused accounts are skipped
+     * via `_tryPauseAccount` rather than reverting, and an empty list reverts.
+     *
+     * @param accounts Sorted ascending list of addresses to pause.
+     *
+     * Requirements:
+     * - {accounts} must be non-empty and strictly ascending
+     * - The caller must have {PAUSER_ROLE}
+     */
     function pauseAccounts(address[] calldata accounts) public virtual
         override(StablecoinUpgradeable)
         onlyRole(PAUSER_ROLE)
