@@ -28,13 +28,15 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
     }
 
     /**
-     * This event is emitted when an account is paused in the contract.
+     * @dev Emitted when an account is paused in the contract.
+     * @param account The account that was paused.
      */
-    event AccountPaused(address account);
+    event AccountPaused(address indexed account);
     /**
-     * This event is emitted when an account is unpaused in the contract.
+     * @dev Emitted when an account is unpaused in the contract.
+     * @param account The account that was unpaused.
      */
-    event AccountUnpaused(address account);
+    event AccountUnpaused(address indexed account);
 
     error AccountIsPaused(address account);
     error AccountIsNotPaused(address account);
