@@ -69,16 +69,18 @@ contract StablecoinUpgradeableV2 is ERC20PermitUpgradeable, StablecoinUpgradeabl
 
     function _initializeV2Params(string memory name_, string memory symbol_, address admin_, address upgrader_,
         address pauser_, address clawbacker_) internal onlyInitializing {
+        // Module initializers first (uninterrupted; ERC20Permit with the other ERC20 modules), then roles.
         __ERC20_init(name_, symbol_);
+        __ERC20Permit_init(name_);
         __UUPSUpgradeable_init();
         __AccessControl_init();
-        _grantRole(DEFAULT_ADMIN_ROLE, admin_);
-        _grantRole(UPGRADER_ROLE, upgrader_);
         __ERC20Pausable_init();
         __AccountPausable_init();
+
+        _grantRole(DEFAULT_ADMIN_ROLE, admin_);
+        _grantRole(UPGRADER_ROLE, upgrader_);
         _grantRole(PAUSER_ROLE, pauser_);
         _grantRole(CLAWBACKER_ROLE, clawbacker_);
-        __ERC20Permit_init(name_);
     }
 
     /// @inheritdoc StablecoinUpgradeable
@@ -108,7 +110,7 @@ contract StablecoinUpgradeableV2 is ERC20PermitUpgradeable, StablecoinUpgradeabl
         override(StablecoinUpgradeable)
         onlyRole(PAUSER_ROLE)
     {
-        address lastAdd = address(0);
+        address lastAdd;
         uint256 accountsLength = accounts.length;
         require(accountsLength > 0, NoAccountsToPause());
         for (uint256 i = 0; i < accountsLength; ++i) {

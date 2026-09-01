@@ -50,6 +50,7 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
 
     /**
      * @dev Modifier to make a function callable only when the account is not paused.
+     * @param account The account that must not be paused.
      *
      * Requirements:
      * - The account must not already be paused.
@@ -61,6 +62,7 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
 
     /**
      * @dev Modifier to make a function callable only when the account is paused.
+     * @param account The account that must be paused.
      *
      * Requirements:
      * - The account must already be paused.
@@ -84,6 +86,7 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
 
     /**
      * @dev Pauses an account from circulating the ERC20 token.
+     * @param account The account to pause.
      *
      * Requirements:
      * - The account must not be paused.
@@ -96,6 +99,7 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
 
     /**
      * @dev Pauses an account from circulating the ERC20 token. And if the account is already paused, we don't revert.
+     * @param account The account to pause if not already paused.
      */
     function _tryPauseAccount(address account) internal virtual {
         AccountPausableStorage storage $ = _getAccountPausableStorage();
@@ -107,6 +111,7 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
 
     /**
      * @dev Returns account to normal state.
+     * @param account The account to unpause.
      *
      * Requirements:
      * - The account must be paused.

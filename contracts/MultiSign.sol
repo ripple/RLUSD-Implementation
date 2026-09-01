@@ -81,6 +81,9 @@ contract MultiSign {
     /**
      * @dev Default constructor to initialize the MultiSign contract.
      * Signer addresses must be strictly ascending by address value (numeric order).
+     * @param _signers Ordered signer addresses.
+     * @param _weights Per-signer signature weights, parallel to `_signers`.
+     * @param _quorum Cumulative weight required to execute.
      */
     constructor (address[] memory _signers, uint8[] memory _weights, uint256 _quorum) {
         DOMAIN_SEPARATOR = keccak256(abi.encode(
@@ -98,6 +101,7 @@ contract MultiSign {
 
     /**
      * @dev Returns the list of signer addresses in an array.
+     * @return The current signer addresses.
      */
     function signers() external view returns (address[] memory) {
         return signersArr;
@@ -106,6 +110,8 @@ contract MultiSign {
     /**
      * @dev Given an address of a signer, return the weight of its signature that gets counted
      * for this account.
+     * @param signer The signer address to query.
+     * @return The weight of `signer`, or 0 if not a signer.
      */
     function signerWeight(address signer) external view returns (uint8) {
         return weights[signer];
@@ -125,8 +131,8 @@ contract MultiSign {
         }
 
         // add new signers to map
-        uint256 signatureWeights = 0;
-        address lastAdd = address(0);
+        uint256 signatureWeights;
+        address lastAdd;
         uint256 newSignerArrLength = _signers.length;
         for (uint256 i = 0; i < newSignerArrLength; ++i) {
             require(_signers[i] > lastAdd, AddressesNotSorted());
@@ -148,6 +154,9 @@ contract MultiSign {
      * end of successful execution.
      * This method can be called by this contract only in order to verify that the signatures are
      * from existing signers with privilege to do so.
+     * @param _signers Ordered signer addresses.
+     * @param _weights Per-signer signature weights, parallel to `_signers`.
+     * @param _quorum Cumulative weight required to execute.
      */
     function setSigners(address[] memory _signers, uint8[] memory _weights, uint256 _quorum) external {
         require(msg.sender == address(this), OnlySelf());
@@ -159,6 +168,13 @@ contract MultiSign {
      * @dev This method is called by an EOA/funding account with the correct set of signatures to eventually
      * make a call to the `destination` with provided call data.
      * Example, calls to the ERC20 contract are made from this method for all MultiSign accounts.
+     * @param sigV Signature v components, ordered by recovered signer address.
+     * @param sigR Signature r components, parallel to `sigV`.
+     * @param sigS Signature s components, parallel to `sigV`.
+     * @param executor Address that must equal `msg.sender`.
+     * @param destination Contract that receives the call.
+     * @param gasLimit Gas stipend forwarded to `destination`.
+     * @param data Calldata executed against `destination`.
      */
     function execute(
         uint8[] memory sigV, bytes32[] memory sigR, bytes32[] memory sigS, address executor, address destination,
@@ -181,8 +197,8 @@ contract MultiSign {
             ))
         ));
 
-        uint256 signatureWeights = 0;
-        address lastAdd = address(0); // cannot have address(0) as an owner
+        uint256 signatureWeights;
+        address lastAdd; // cannot have address(0) as an owner (default)
         uint256 signaturesLength = sigV.length;
         for (uint256 i = 0; i < signaturesLength; ++i) {
             address recovered = ECDSA.recover(digest, sigV[i], sigR[i], sigS[i]);
@@ -198,8 +214,7 @@ contract MultiSign {
 
         require(destination.code.length > 0, DestinationNotContract());
 
-        bool success = false;
-        (success,) = destination.call{gas: gasLimit}(data);
+        (bool success,) = destination.call{gas: gasLimit}(data);
         emit DestinationCalled(destination, data, gasLimit);
         require(success, DestinationCallFailed());
     }

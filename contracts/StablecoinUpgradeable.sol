@@ -56,14 +56,16 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
                         address pauser_, address clawbacker_)
         external virtual initializer
     {
+        // Module initializers first (uninterrupted), then role assignment.
         __ERC20_init(name_, symbol_);
         __UUPSUpgradeable_init();
         __AccessControl_init();
+        __ERC20Pausable_init();
+        __AccountPausable_init();
+
         _grantRole(DEFAULT_ADMIN_ROLE, admin_);
         _grantRole(MINTER_ROLE, minter_);
         _grantRole(UPGRADER_ROLE, upgrader_);
-        __ERC20Pausable_init();
-        __AccountPausable_init();
         _grantRole(PAUSER_ROLE, pauser_);
         _grantRole(CLAWBACKER_ROLE, clawbacker_);
     }
@@ -139,7 +141,7 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
      * - The caller must have {PAUSER_ROLE}.
      */
     function pauseAccounts(address[] calldata accounts) public virtual onlyRole(PAUSER_ROLE) {
-        address lastAdd = address(0);
+        address lastAdd;
         uint256 accountsLength = accounts.length;
         for (uint256 i = 0; i < accountsLength; ++i) {
             require(accounts[i] > lastAdd, AddressesNotSorted());
@@ -164,11 +166,15 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
     /**
      * An overridden method from {UUPSUpgradeable} which defines the permissions for authorizing an upgrade to a
      * new implementation.
+     * @param newImplementation The address of the candidate implementation contract.
      */
     function _authorizeUpgrade(address newImplementation) internal virtual override onlyRole(UPGRADER_ROLE) {}
 
     /**
      * An overridden method to add modifiers to check if the accounts being used to transfer are not frozen.
+     * @param from The address tokens are moved from (zero on mint).
+     * @param to The address tokens are moved to (zero on burn).
+     * @param value The amount of tokens transferred.
      *
      * Requirements:
      * - the {from} account should not be paused/frozen
