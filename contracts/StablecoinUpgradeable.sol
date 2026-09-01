@@ -30,6 +30,9 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
     //keccak256("CLAWBACKER")
     bytes32 constant public CLAWBACKER_ROLE = 0x715bacafb7a853b9b91b59ae724920a9eb0c006c5b318ac393fa1bc8974edd98;
 
+    error AddressesNotSorted();
+    error NoAccountsToPause();
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -139,7 +142,7 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
         address lastAdd = address(0);
         uint256 accountsLength = accounts.length;
         for (uint256 i = 0; i < accountsLength; ++i) {
-            require(accounts[i] > lastAdd, "Addresses should be sorted");
+            require(accounts[i] > lastAdd, AddressesNotSorted());
             _pauseAccount(accounts[i]);
             lastAdd = accounts[i];
         }

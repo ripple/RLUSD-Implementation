@@ -60,7 +60,7 @@ contract StablecoinUpgradeableV2 is ERC20PermitUpgradeable, StablecoinUpgradeabl
      * @param clawbacker_ The address of the clawbacker role.
      */
     function initialize(string memory name_, string memory symbol_, address minter_, address admin_, address upgrader_,
-            address pauser_, address clawbacker_)
+                            address pauser_, address clawbacker_)
         external virtual override _onlyUninitialized reinitializer(2)
     {
         _initializeV2Params(name_, symbol_, admin_, upgrader_, pauser_, clawbacker_);
@@ -110,9 +110,9 @@ contract StablecoinUpgradeableV2 is ERC20PermitUpgradeable, StablecoinUpgradeabl
     {
         address lastAdd = address(0);
         uint256 accountsLength = accounts.length;
-        require(accountsLength > 0, "No accounts to pause");
+        require(accountsLength > 0, NoAccountsToPause());
         for (uint256 i = 0; i < accountsLength; ++i) {
-            require(accounts[i] > lastAdd, "Addresses should be sorted");
+            require(accounts[i] > lastAdd, AddressesNotSorted());
             _tryPauseAccount(accounts[i]);
             lastAdd = accounts[i];
         }
