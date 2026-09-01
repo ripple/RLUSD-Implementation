@@ -10,7 +10,7 @@ import {ERC1967Proxy} from "node_modules/@openzeppelin/contracts/proxy/ERC1967/E
  **/
 contract StablecoinProxy is ERC1967Proxy {
 
-    constructor (address _delegate, bytes memory _data)  ERC1967Proxy(_delegate, _data)  {
+    constructor (address implementation, bytes memory _data)  ERC1967Proxy(implementation, _data)  {
     }
 
     /**
