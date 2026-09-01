@@ -73,7 +73,7 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
      * @param to    The address that will be receiving the minted amount.
      * @param value The amount of tokens that are being minted to the account.
      *
-     * Emits a {Transfer} event with `source` set to the zero address.
+     * Emits a {Transfer} event with `from` set to the zero address.
      */
     function mint(address to, uint256 value) public virtual onlyRole(MINTER_ROLE) {
         _mint(to, value);
@@ -85,7 +85,7 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
      *
      * @param value The amount of tokens that are being burned from message sender's holdings.
      *
-     * Emits a {Transfer} event with `destination` set to the zero address.
+     * Emits a {Transfer} event with `to` set to the zero address.
      */
     function burn(uint256 value) public virtual onlyRole(BURNER_ROLE) {
         _burn(msg.sender, value);
@@ -98,39 +98,42 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
      * @param from  The address from which the tokens will be burned.
      * @param value The amount of tokens that will be burned.
      *
-     * Emits a {Transfer} event with `destination` set to the zero address.
+     * Emits a {Transfer} event with `to` set to the zero address.
      */
     function clawback(address from, uint256 value) public virtual onlyRole(CLAWBACKER_ROLE) {
         _burn(from, value);
     }
 
     /**
-     * Allow an authorized minter to pause the circulation of ERC20 tokens from all accounts.
+     * Allow an authorized pauser to pause the circulation of ERC20 tokens from all accounts.
      *
      * Requirements:
      * - The contract must not be paused.
+     * - The caller must have {PAUSER_ROLE}.
      */
     function pause() public virtual onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
     /**
-     * Allow an authorized minter to resume/unpause the circulation of ERC20 tokens from all account.
+     * Allow an authorized pauser to resume/unpause the circulation of ERC20 tokens from all accounts.
      *
      * Requirements:
      * - The contract must be paused.
+     * - The caller must have {PAUSER_ROLE}.
      */
     function unpause() public virtual onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
     /**
-     * Allow an authorized minter to pause the circulation of ERC20 tokens from a specified account.
+     * Allow an authorized pauser to pause the circulation of ERC20 tokens from specified accounts.
      *
      * @param accounts An array of addresses that will be paused, restricting them from taking any value moving actions.
      *
      * Requirements:
      * - accounts in the {accounts} list should be unpaused
+     * - The caller must have {PAUSER_ROLE}.
      */
     function pauseAccounts(address[] calldata accounts) public virtual onlyRole(PAUSER_ROLE) {
         address lastAdd = address(0);
@@ -143,12 +146,13 @@ contract StablecoinUpgradeable is Initializable, ERC20Upgradeable, UUPSUpgradeab
     }
 
     /**
-     * Allow an authorized minter to resume/unpause the circulation of ERC20 tokens from a specified account.
+     * Allow an authorized pauser to resume/unpause the circulation of ERC20 tokens from a specified account.
      *
      * @param account The address that is being unpaused.
      *
      * Requirements:
      * - the {account} should be paused
+     * - The caller must have {PAUSER_ROLE}.
      */
     function unpauseAccount(address account) public virtual onlyRole(PAUSER_ROLE) {
         _unpauseAccount(account);

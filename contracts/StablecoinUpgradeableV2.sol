@@ -36,20 +36,20 @@ contract StablecoinUpgradeableV2 is ERC20PermitUpgradeable, StablecoinUpgradeabl
     }
 
     /**
-     * @dev This method is used to re-initialize the contract with values that we want to use to bootstrap and run things.
-     * The modifier reinitializer here helps us block initialization in the constructor so that we initialize value only
-     * when deploying the proxy and not the contract itself. The reinitializer also tracks how many times this method is
-     * called and it can only be called once.
+     * @dev Re-initialize a V1 proxy as V2 by wiring ERC-20 permit storage from the existing token name.
+     * `_disableInitializers` in the constructor blocks initialization of the implementation itself.
+     * `reinitializer(2)` advances the initializer version to 2 and ensures this path runs at most once.
+     * `_onlyInitializedV1` requires the proxy to already be at version 1 so a fresh (uninitialized)
+     * proxy cannot be advanced to version 2 and bricked.
      */
     function reinitialize() external _onlyInitializedV1 reinitializer(2) {
         __ERC20Permit_init(name());
     }
 
     /**
-     * @dev This method is used to initialize the contract with values that we want to use to bootstrap and run things.
-     * The modifier initializer here helps us block initialization in the constructor so that we initialize value only
-     * when deploying the proxy and not the contract itself. The initializer also tracks how many times this method is
-     * called and it can only be called once.
+     * @dev Initialize a fresh proxy directly as V2. `_onlyUninitialized` rejects proxies that are
+     * already initialized, and `reinitializer(2)` sets the initializer version to 2. Constructor
+     * initialization of the implementation is blocked by `_disableInitializers`.
      *
      * @param name_ The name of the token.
      * @param symbol_ The symbol of the token.
@@ -118,12 +118,14 @@ contract StablecoinUpgradeableV2 is ERC20PermitUpgradeable, StablecoinUpgradeabl
     }
 
     /**
-     * An overridden method to add modifiers to check if the accounts being used to transfer are not frozen.
+     * @dev Sets `value` as the allowance of `spender` over `owner`'s tokens via a signature (ERC-2612).
+     * Overrides the parent to additionally require that `owner`, `spender`, and the caller are not
+     * account-paused and that the contract itself is not paused.
      *
-     * @param owner The address of the owner of the token.
-     * @param spender The address of the spender of the token.
-     * @param value The amount of tokens to be approved.
-     * @param deadline The deadline for the permit.
+     * @param owner The address of the owner of the tokens.
+     * @param spender The address of the spender receiving the allowance.
+     * @param value The amount of tokens to approve.
+     * @param deadline The deadline for the permit signature.
      * @param v The v value of the signature.
      * @param r The r value of the signature.
      * @param s The s value of the signature.

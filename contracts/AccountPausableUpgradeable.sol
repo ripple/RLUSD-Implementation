@@ -5,11 +5,10 @@ import {Initializable} from "@openzeppelin-upgradeable/contracts/proxy/utils/Ini
 import {ContextUpgradeable} from "@openzeppelin-upgradeable/contracts/utils/ContextUpgradeable.sol";
 
 /**
- * @dev The following contract lets us halt activities for accounts that have been paused using the
- * `_pauseAccount` method and the same action can be reverted by using the `_unpauseAccount`
- * method. The state is stored at a custom storage location as per ERC7201. The modifiers in this
- * contract are used in the base `StablecoinUpgradeable` contract resulting in blocked actions for
- * specific accounts.
+ * @dev Halt activity for individual accounts that have been paused via `_pauseAccount` or
+ * `_tryPauseAccount`; the same action can be reverted with `_unpauseAccount`. State is stored at a
+ * custom storage location as per ERC-7201. Derived contracts such as `StablecoinUpgradeable` apply
+ * the modifiers here to block actions for specific accounts.
  *
  * @custom:security-contact bugs@ripple.com
  */
@@ -59,7 +58,7 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
     }
 
     /**
-     * @dev Modifier to make a function callable only when the acoount is paused.
+     * @dev Modifier to make a function callable only when the account is paused.
      *
      * Requirements:
      * - The account must already be paused.
