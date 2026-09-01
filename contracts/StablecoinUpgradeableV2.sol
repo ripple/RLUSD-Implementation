@@ -87,9 +87,8 @@ contract StablecoinUpgradeableV2 is ERC20PermitUpgradeable, StablecoinUpgradeabl
         whenAccountNotPaused(to)
         whenAccountNotPaused(_msgSender())
     {
-        if (to == address(0) && from != _msgSender()) {
-            // allow burn when account is frozen (clawback)
-        } else {
+        // Clawback burns (to == 0, caller is not the frozen account) skip the from-paused check.
+        if (!(to == address(0) && from != _msgSender())) {
             require(!accountPaused(from), AccountIsPaused(from));
         }
         ERC20PausableUpgradeable._update(from, to, value);

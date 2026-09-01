@@ -41,6 +41,10 @@ abstract contract AccountPausableUpgradeable is Initializable, ContextUpgradeabl
     error AccountIsNotPaused(address account);
 
     function __AccountPausable_init() internal onlyInitializing {
+        __AccountPausable_init_unchained();
+    }
+
+    function __AccountPausable_init_unchained() internal onlyInitializing {
     }
 
     /**
