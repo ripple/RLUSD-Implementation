@@ -1,4 +1,4 @@
-# Ripple USD Ethereum Design
+# Ripple USD EVM Compatible Design
 
 Ripple USD (RLUSD) is an [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/) compliant token with [ERC-2612 Permit](https://eips.ethereum.org/EIPS/eip-2612) extension support. The ERC-20 design includes standard imported functions from [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc20#IERC20), and specific functions written by Ripple Engineers.
 
@@ -50,7 +50,7 @@ This iterative process ensures Ripple USD is always fully collateralized.
 
 ## Multi-Signing
 
-Security of internal accounts is incredibly important. For this reason, Ripple has chosen to use on-chain multi-signature safeguards for _all_ internal accounts. Since this is supported natively on the XRP Ledger, Ripple chose to expand this functionality to Ethereum by introducing a custom `MultiSign` contract.
+Security of internal accounts is incredibly important. For this reason, Ripple has chosen to use on-chain multi-signature safeguards for _all_ internal accounts. Since this is supported natively on the XRP Ledger, Ripple chose to expand this functionality to EVM compatible blockchains by introducing a custom `MultiSign` contract.
 
 The `MultiSign` contract requires the creation of a predetermined list of known signers (accounts). The contract verifies that the transaction bytes provided are signed by the correct accounts, and then forwards the request function to the ERC-20 contract to execute the transaction.
 
