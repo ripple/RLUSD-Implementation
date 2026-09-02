@@ -17,12 +17,7 @@ contract StablecoinProxy is ERC1967Proxy {
     constructor (address implementation, bytes memory _data)  ERC1967Proxy(implementation, _data)  {
     }
 
-    /**
-     * @dev Returns the implementation address of the contract that executes a transaction.
-     * @return The current implementation address.
-     */
-    function getImplementation() public view returns (address) {
-        return _implementation();
-    }
-
+    // No own functions: every selector is delegated so future implementations are never shadowed.
+    // Read the implementation off-chain via the ERC-1967 slot (eth_getStorageAt) or on-chain via
+    // ERC1967Utils.getImplementation().
 }
