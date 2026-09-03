@@ -65,9 +65,9 @@ contract MultiSign {
     event DestinationCalled(address destination, bytes data, uint256 gasLimit);
 
     /**
-    * Default constructor to initialize the MultiSign contract.
-    * Signer addresses submitted to the contract should be ordered by their string values.
-    **/
+     * @dev Default constructor to initialize the MultiSign contract.
+     * Signer addresses must be strictly ascending by address value (numeric order).
+     */
     constructor (address[] memory _signers, uint8[] memory _weights, uint256 _quorum) {
         DOMAIN_SEPARATOR = keccak256(abi.encode(
             EIP712DOMAIN_TYPEHASH,
@@ -90,7 +90,7 @@ contract MultiSign {
     }
 
     /**
-     * @dev Given an address of a signer, return the weight of it's signature that gets counted
+     * @dev Given an address of a signer, return the weight of its signature that gets counted
      * for this account.
      */
     function signerWeight(address signer) external view returns (uint8) {
