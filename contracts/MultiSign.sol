@@ -40,8 +40,8 @@ contract MultiSign {
      */
     uint256 public nonce;
     address[] private signersArr;
-    mapping (address => bool) private isSigner;
-    mapping (address => uint8) private weights;
+    mapping (address signer => bool) private isSigner;
+    mapping (address signer => uint8 weight) private weights;
 
     /**
      * @dev Event emitted when the state of the contract changes.
@@ -51,7 +51,7 @@ contract MultiSign {
      * @param weights The new array of weights of the signers.
      * @param quorum  The cumulative weight of all signatures should exceed or match this value.
      */
-    event SignersChanged(address account, address[] signers, uint8[] weights, uint256 quorum);
+    event SignersChanged(address indexed account, address[] signers, uint8[] weights, uint256 quorum);
 
     /**
      * @dev Event emitted when the destination contract is called with the provided calldata.
@@ -62,7 +62,7 @@ contract MultiSign {
      * @param gasLimit    The maximum amount of gas that can be consumed by the destination contract to execute the
      *                    calldata.
      */
-    event DestinationCalled(address destination, bytes data, uint256 gasLimit);
+    event DestinationCalled(address indexed destination, bytes data, uint256 gasLimit);
 
     /**
      * @dev Default constructor to initialize the MultiSign contract.
