@@ -99,6 +99,7 @@ contract MultiSign {
 
     // Note that signers_ must be strictly increasing, in order to prevent duplicates
     function setSigners_(address[] memory _signers, uint8[] memory _weights, uint256 _quorum) private {
+        require(_signers.length == _weights.length, "Signers and weights arrays must have the same length.");
         require(_signers.length <= 32, "Contract allows adding up to 32 signers only.");
         require(_quorum > 0, "Quorum cannot be 0.");
 
