@@ -64,6 +64,20 @@ contract MultiSign {
      */
     event DestinationCalled(address indexed destination, bytes data, uint256 gasLimit);
 
+    error SignerWeightLengthMismatch();
+    error TooManySigners();
+    error QuorumIsZero();
+    error AddressesNotSorted();
+    error QuorumExceedsWeightSum();
+    error OnlySelf();
+    error SignatureArrayLengthMismatch();
+    error ExecutorMustBeSender();
+    error SignaturesOutOfOrder();
+    error RecoveredNotSigner();
+    error InsufficientSignatureWeight();
+    error DestinationNotContract();
+    error DestinationCallFailed();
+
     /**
      * @dev Default constructor to initialize the MultiSign contract.
      * Signer addresses must be strictly ascending by address value (numeric order).
@@ -99,9 +113,9 @@ contract MultiSign {
 
     // Note that signers_ must be strictly increasing, in order to prevent duplicates
     function setSigners_(address[] memory _signers, uint8[] memory _weights, uint256 _quorum) private {
-        require(_signers.length == _weights.length, "Signers and weights arrays must have the same length.");
-        require(_signers.length <= 32, "Contract allows adding up to 32 signers only.");
-        require(_quorum > 0, "Quorum cannot be 0.");
+        require(_signers.length == _weights.length, SignerWeightLengthMismatch());
+        require(_signers.length <= 32, TooManySigners());
+        require(_quorum > 0, QuorumIsZero());
 
         // remove old signers from map and set weights to 0
         uint256 existingSignerArrLength = signersArr.length;
@@ -115,13 +129,13 @@ contract MultiSign {
         address lastAdd = address(0);
         uint256 newSignerArrLength = _signers.length;
         for (uint256 i = 0; i < newSignerArrLength; ++i) {
-            require(_signers[i] > lastAdd, "Addresses should be sorted");
+            require(_signers[i] > lastAdd, AddressesNotSorted());
             isSigner[_signers[i]] = true;
             weights[_signers[i]] = _weights[i];
             signatureWeights += _weights[i];
             lastAdd = _signers[i];
         }
-        require(_quorum <= signatureWeights, "Quorum must be less than or equal to sum of all signer weights");
+        require(_quorum <= signatureWeights, QuorumExceedsWeightSum());
 
         // set signers array and quorum
         signersArr = _signers;
@@ -136,7 +150,7 @@ contract MultiSign {
      * from existing signers with privilege to do so.
      */
     function setSigners(address[] memory _signers, uint8[] memory _weights, uint256 _quorum) external {
-        require(msg.sender == address(this), "Only this contract can set signers after signature verification");
+        require(msg.sender == address(this), OnlySelf());
         setSigners_(_signers, _weights, _quorum);
         emit SignersChanged(address(this), _signers, _weights, _quorum);
     }
@@ -151,8 +165,8 @@ contract MultiSign {
         uint256 gasLimit, bytes calldata data
     ) external {
 
-        require(sigR.length == sigS.length && sigR.length == sigV.length, "Length of signature arrays dont match.");
-        require(executor == msg.sender, "Executor has to be the sender");
+        require(sigR.length == sigS.length && sigR.length == sigV.length, SignatureArrayLengthMismatch());
+        require(executor == msg.sender, ExecutorMustBeSender());
 
         bytes32 digest = keccak256(abi.encodePacked(
             "\x19\x01",
@@ -172,21 +186,21 @@ contract MultiSign {
         uint256 signaturesLength = sigV.length;
         for (uint256 i = 0; i < signaturesLength; ++i) {
             address recovered = ECDSA.recover(digest, sigV[i], sigR[i], sigS[i]);
-            require(recovered > lastAdd, "Signatures are out of order.");
-            require(isSigner[recovered], "Address recovered from signature is not a signer.");
+            require(recovered > lastAdd, SignaturesOutOfOrder());
+            require(isSigner[recovered], RecoveredNotSigner());
             lastAdd = recovered;
             signatureWeights += weights[recovered];
         }
-        require(signatureWeights >= quorum, "Signature weights don't add up to the required quorum");
+        require(signatureWeights >= quorum, InsufficientSignatureWeight());
 
         // If we make it here all signatures are accounted for.
         nonce = nonce + 1;
 
-        require(destination.code.length > 0, "Destination address should be a contract address");
+        require(destination.code.length > 0, DestinationNotContract());
 
         bool success = false;
         (success,) = destination.call{gas: gasLimit}(data);
         emit DestinationCalled(destination, data, gasLimit);
-        require(success, "Submission to destination failed");
+        require(success, DestinationCallFailed());
     }
 }
